@@ -1,0 +1,38 @@
+# Environment variables
+.env
+
+# Virtual environments
+.venv
+
+# IDE
+.vscode
+
+# Logs
+logs/
+
+# Data
+data/
+
+# Models
+models/
+
+# Temporary files
+tmp/
+
+# OS
+.DS_Store
+
+# Backup files
+*.bak
+*.tmp
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
