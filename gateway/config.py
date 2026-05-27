@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     aws_access_key_id: str | None = Field(default=None)
     aws_secret_access_key: str | None = Field(default=None)
 
+
 @lru_cache()
 def get_settings() -> Settings:
     return Settings()   
