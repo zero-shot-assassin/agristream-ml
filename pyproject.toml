@@ -7,6 +7,17 @@ requires-python = ">=3.11"
 dependencies = [
     "boto3>=1.43.15",
     "fastapi[standard]>=0.136.3",
+    "numpy>=2.4.6",
+    "onnxruntime>=1.26.0",
+    "onnxscript>=0.7.0",
+    "pillow>=12.2.0",
     "pydantic-settings>=2.14.1",
     "uvicorn>=0.48.0",
+]
+
+[dependency-groups]
+dev = [
+    "onnx>=1.21.0",
+    "torch>=2.12.0",
+    "torchvision>=0.27.0",
 ]

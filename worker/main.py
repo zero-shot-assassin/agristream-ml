@@ -10,9 +10,12 @@ import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 
 from gateway.config import get_settings
+from worker.pipeline import InferencePipeline
  
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("agristream.worker")
+
+pipeline = InferencePipeline()
  
 # --- Graceful shutdown flag ---------------------------------------------------
 _shutdown = False
@@ -51,9 +54,9 @@ def process_message(s3: boto3.client, payload: dict[str, Any]) -> None:
     bucket = payload["bucket"]
     key = payload["key"]
     request_id = payload.get("request_id", "unknown")
- 
+
     logger.info("Downloading from S3", extra={"bucket": bucket, "key": key})
- 
+
     buffer = io.BytesIO()
     try:
         s3.download_fileobj(Bucket=bucket, Key=key, Fileobj=buffer)
@@ -63,13 +66,24 @@ def process_message(s3: boto3.client, payload: dict[str, Any]) -> None:
             extra={"request_id": request_id, "key": key},
         )
         raise   # re-raise so poll_loop's except catches it and skips delete
- 
+
     buffer.seek(0)
     image_bytes = buffer.read()
- 
+
     logger.info(
         "Image downloaded successfully",
         extra={"request_id": request_id, "size_bytes": len(image_bytes)},
+    )
+
+    # --- Run inference --------------------------------
+    result = pipeline.run(image_bytes)
+    logger.info(
+        "Inference result",
+        extra={
+            "request_id": request_id,
+            "class_id": result.class_id,
+            "confidence": round(result.confidence, 4),
+        },
     )
 
 
