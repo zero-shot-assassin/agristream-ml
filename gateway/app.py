@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 from gateway.aws import get_s3_client, get_sqs_client
 from gateway.config import Settings, get_settings
- 
+
 logger = logging.getLogger("agristream.gateway")
 logging.basicConfig(level=logging.INFO)
 
