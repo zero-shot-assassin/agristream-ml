@@ -20,6 +20,7 @@ IMAGENET_STD  = np.array([0.229, 0.224, 0.225], dtype=np.float32)
 class InferenceResult:
     class_id: int
     confidence: float
+    image_mean_brightness: float    # mean pixel value before normalization [0, 1]
 
 
 class InferencePipeline:
@@ -40,16 +41,17 @@ class InferencePipeline:
         image = image.resize((224, 224), Image.BILINEAR)
 
         arr = np.array(image, dtype=np.float32) / 255.0   # [0,1]
+        image_mean_brightness = float(np.mean(arr))            # capture before normalizing
         arr = (arr - IMAGENET_MEAN) / IMAGENET_STD         # normalize
         arr = arr.transpose(2, 0, 1)                       # HWC → CHW
         arr = np.expand_dims(arr, axis=0)                  # CHW → NCHW (batch=1)
-        return arr
+        return arr, image_mean_brightness
 
     def run(self, image_bytes: bytes) -> InferenceResult:
-        input_tensor = self._preprocess(image_bytes)
+        input_tensor, image_mean_brightness = self._preprocess(image_bytes)
 
         outputs = self._session.run(None, {self._input_name: input_tensor})
-        logits = outputs[0][0]                             # shape: (1000,)
+        logits = outputs[0][0]
 
         class_id = int(np.argmax(logits))
         confidence = float(np.exp(logits[class_id]) / np.sum(np.exp(logits)))
@@ -58,4 +60,8 @@ class InferencePipeline:
             "Inference complete",
             extra={"class_id": class_id, "confidence": round(confidence, 4)},
         )
-        return InferenceResult(class_id=class_id, confidence=confidence)
+        return InferenceResult(
+            class_id=class_id,
+            confidence=confidence,
+            image_mean_brightness=image_mean_brightness,
+        )

@@ -11,11 +11,13 @@ from botocore.exceptions import BotoCoreError, ClientError
 
 from gateway.config import get_settings
 from worker.pipeline import InferencePipeline
+from telemetry.monitor import DriftMonitor
  
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("agristream.worker")
 
 pipeline = InferencePipeline()
+monitor = DriftMonitor(window_size=50, z_threshold=3.0)
  
 # --- Graceful shutdown flag ---------------------------------------------------
 _shutdown = False
@@ -84,6 +86,12 @@ def process_message(s3: boto3.client, payload: dict[str, Any]) -> None:
             "class_id": result.class_id,
             "confidence": round(result.confidence, 4),
         },
+    )
+
+    # --- Record drift -------------------------------------------------
+    monitor.record(
+        confidence=result.confidence,
+        image_mean_brightness=result.image_mean_brightness,
     )
 
 
