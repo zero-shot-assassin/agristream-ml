@@ -78,14 +78,13 @@ def process_message(s3: boto3.client, payload: dict[str, Any]) -> None:
     )
 
     # --- Run inference --------------------------------
-    result = pipeline.run(image_bytes)
+    result = pipeline.run(image_bytes, explain=False)  # XAI disabled for speed
     logger.info(
-        "Inference result",
-        extra={
-            "request_id": request_id,
-            "class_id": result.class_id,
-            "confidence": round(result.confidence, 4),
-        },
+        "Inference result | request_id=%s | class_id=%d | confidence=%.4f | top_5=%s",
+        request_id,
+        result.class_id,
+        result.confidence,
+        result.top_k_classes,
     )
 
     # --- Record drift -------------------------------------------------
