@@ -58,16 +58,6 @@ AWS_ACCESS_KEY_ID=xxx  # local dev only; use IAM roles in production
 AWS_SECRET_ACCESS_KEY=xxx
 ```
 
-## 7-Day Development Log
-
-- **Day 1**: FastAPI gateway, S3 streaming, SQS events
-- **Day 2**: SQS polling worker, graceful shutdown
-- **Day 3**: MobileNetV3 ONNX export, inference pipeline
-- **Day 4**: Real-time drift detection (confidence + brightness)
-- **Day 5**: Terraform IaC (S3/SQS/ECS), TFLite edge strategy
-- **Day 6**: XAI — top-k transparency, patch-based confidence heatmaps
-- **Day 7**: Integration tests, documentation, code freeze
-
 ## License
 
 MIT — Portfolio demonstration project.
